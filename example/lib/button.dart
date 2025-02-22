@@ -13,7 +13,7 @@ class Button extends StatelessWidget {
     return SafeArea(
       child: Column(
         children: [
-          SizedBox(
+          const SizedBox(
             height: 100,
           ),
           IconButton(
@@ -27,7 +27,7 @@ class Button extends StatelessWidget {
           ),
           ElevatedButton(
             onPressed: () {},
-            child: Text('label'),
+            child: const Text('label'),
           ),
         ],
       ),

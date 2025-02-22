@@ -1,12 +1,6 @@
-import 'dart:convert';
-import 'dart:developer' as developer;
-import 'dart:isolate';
 import 'dart:math';
-import 'dart:ui';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_overlay_window/flutter_overlay_window.dart';
-import 'package:flutter_overlay_window_example/main.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({
@@ -19,7 +13,6 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
 
-  static const String _kPortNameHome = 'UI';
 
   @override
   Widget build(BuildContext context) {

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'dart:math';
+
 class BallPainter extends CustomPainter {
   final Offset whiteBallPosition;
   final Offset redBallPosition;
@@ -32,8 +33,7 @@ class BallPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     Paint gridPaint = Paint()
       ..color = Colors.black
-      ..style = PaintingStyle.stroke
- ;
+      ..style = PaintingStyle.stroke;
 
     for (double y = 0; y <= size.height; y += 50) {
       canvas.drawLine(Offset(0, y), Offset(size.width, y), gridPaint);
@@ -54,7 +54,7 @@ class BallPainter extends CustomPainter {
     double totalLineLength = 400;
     List<Offset> reflectionPath = _calculateReflectionPath(
         whiteBallPosition, cueAngle, size, totalLineLength);
-      //  whiteBallPosition, cueAngle + reflectionAngleAdjustment, size, totalLineLength);
+    //  whiteBallPosition, cueAngle + reflectionAngleAdjustment, size, totalLineLength);
 
     Paint dottedLinePaint = Paint()
       ..color = Colors.brown
@@ -110,6 +110,7 @@ class BallPainter extends CustomPainter {
       _drawDottedLine(canvas, start, end, dottedLinePaint);
     }
   }
+
   double _calculateReflectedAngle(
       double incomingAngle, Offset whiteBall, Offset redBall) {
     double normalAngle =
@@ -124,22 +125,23 @@ class BallPainter extends CustomPainter {
     double outgoingAngle = 2 * impactAngle - incomingAngle;
     return outgoingAngle + reflectionAngleAdjustment;
   }
-//انعكاس صح بس الحواف بايظه
-List<Offset> _calculateReflectionPath(
-    Offset start, double angle, Size size, double maxLength) {
-  List<Offset> path = [start];
-  Offset current = start;
-  double currentAngle = angle;
-  double currentLength = 0.0;
-  int maxReflections = 2;
-  while (currentLength < maxLength && path.length <= maxReflections) {
-    double remainingLength = maxLength - currentLength;
-    double x = current.dx + remainingLength * cos(currentAngle);
-    double y = current.dy + remainingLength * sin(currentAngle);
-    Offset end = Offset(x, y);
-    double tX = 1.0, tY = 1.0;
 
-          if (end.dx < 0 || end.dx > size.width) {
+//انعكاس صح بس الحواف بايظه
+  List<Offset> _calculateReflectionPath(
+      Offset start, double angle, Size size, double maxLength) {
+    List<Offset> path = [start];
+    Offset current = start;
+    double currentAngle = angle;
+    double currentLength = 0.0;
+    int maxReflections = 2;
+    while (currentLength < maxLength && path.length <= maxReflections) {
+      double remainingLength = maxLength - currentLength;
+      double x = current.dx + remainingLength * cos(currentAngle);
+      double y = current.dy + remainingLength * sin(currentAngle);
+      Offset end = Offset(x, y);
+      double tX = 1.0, tY = 1.0;
+
+      if (end.dx < 0 || end.dx > size.width) {
         tX = end.dx < 0
             ? (0 - current.dx) / (end.dx - current.dx)
             : (size.width - current.dx) / (end.dx - current.dx);
@@ -160,21 +162,22 @@ List<Offset> _calculateReflectionPath(
       } else {
         currentAngle = -currentAngle + reflectionAngleAdjustment;
       }
-    // تحديث المسار وإجمالي الطول
-    double segmentLength = (end - current).distance;
-    if (currentLength + segmentLength > maxLength) {
-      double scale = (maxLength - currentLength) / segmentLength;
-      end = Offset(
-        current.dx + (end.dx - current.dx) * scale,
-        current.dy + (end.dy - current.dy) * scale,
-      );
+      // تحديث المسار وإجمالي الطول
+      double segmentLength = (end - current).distance;
+      if (currentLength + segmentLength > maxLength) {
+        double scale = (maxLength - currentLength) / segmentLength;
+        end = Offset(
+          current.dx + (end.dx - current.dx) * scale,
+          current.dy + (end.dy - current.dy) * scale,
+        );
+      }
+      path.add(end);
+      currentLength += segmentLength;
+      current = end;
     }
-    path.add(end);
-    currentLength += segmentLength;
-    current = end;
+    return path;
   }
-  return path;
-}
+
   void _drawDottedLine(Canvas canvas, Offset start, Offset end, Paint paint) {
     double dashLength = 10;
     double gapLength = 5;
