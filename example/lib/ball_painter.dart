@@ -3,19 +3,21 @@ import 'dart:math';
 
 class BallPainter extends CustomPainter {
   final Offset whiteBallPosition;
+  final int maxReflections;
   final Offset redBallPosition;
   final Offset? aimPoint;
   final double cueAngle;
   final double reflectionAngleAdjustment;
   final double ballRadius;
-
+  final double lineLength;
   BallPainter(
       {required this.whiteBallPosition,
       required this.redBallPosition,
       this.aimPoint,
       required this.cueAngle,
       this.reflectionAngleAdjustment = 0.0,
-      required this.ballRadius});
+      required this.ballRadius,
+      required this.lineLength,required this.maxReflections});
 
   Offset _closestPointOnSegment(Offset p, Offset a, Offset b) {
     double ax = a.dx, ay = a.dy, bx = b.dx, by = b.dy;
@@ -51,7 +53,7 @@ class BallPainter extends CustomPainter {
       ..style = PaintingStyle.stroke
       ..strokeWidth = 3;
     canvas.drawCircle(redBallPosition, ballRadius, redBallPaint);
-    double totalLineLength = 400;
+    double totalLineLength = lineLength;
     List<Offset> reflectionPath = _calculateReflectionPath(
         whiteBallPosition, cueAngle, size, totalLineLength);
     //  whiteBallPosition, cueAngle + reflectionAngleAdjustment, size, totalLineLength);
@@ -133,7 +135,7 @@ class BallPainter extends CustomPainter {
     Offset current = start;
     double currentAngle = angle;
     double currentLength = 0.0;
-    int maxReflections = 2;
+    int maxReflections = this.maxReflections;
     while (currentLength < maxLength && path.length <= maxReflections) {
       double remainingLength = maxLength - currentLength;
       double x = current.dx + remainingLength * cos(currentAngle);

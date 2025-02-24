@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_overlay_window/flutter_overlay_window.dart';
@@ -123,57 +124,6 @@ class _HomePageState extends State<HomePage> {
                             color: Colors.black87,
                           ),
                         ),
-                        const SizedBox(height: 10.0),
-                        TextButton.icon(
-                          onPressed: () async {
-                            if (await FlutterOverlayWindow.isActive()) return;
-                            //  await launchOverlay("ball_game");
-
-                            await FlutterOverlayWindow.showOverlay(
-                              enableDrag: false,
-                              overlayTitle: "X-SLAYER",
-                              overlayContent: 'Overlay Enabled',
-                              flag: OverlayFlag.defaultFlag,
-                              visibility:
-                                  NotificationVisibility.visibilityPublic,
-                              positionGravity: PositionGravity.auto,
-                              height: WindowSize.matchParent,
-                              width: WindowSize.matchParent,
-                              startPosition: const OverlayPosition(0, 0),
-                            );
-                          },
-                          icon: const Icon(Icons.open_in_new,
-                              color: Colors.white),
-                          label: const Text(
-                            "Show Overlay",
-                            style: TextStyle(fontSize: 16),
-                          ),
-                          style: TextButton.styleFrom(
-                            padding: const EdgeInsets.symmetric(
-                                vertical: 12, horizontal: 16),
-                            foregroundColor: Colors.white,
-                            backgroundColor: Colors.green,
-                          ),
-                        ),
-                        TextButton.icon(
-                          onPressed: () async {
-                            if (await FlutterOverlayWindow.isActive()) {
-                              FlutterOverlayWindow.;
-                            }
-                          },
-                          icon: const Icon(Icons.open_in_new,
-                              color: Colors.white),
-                          label: const Text(
-                            "UY",
-                            style: TextStyle(fontSize: 16),
-                          ),
-                          style: TextButton.styleFrom(
-                            padding: const EdgeInsets.symmetric(
-                                vertical: 12, horizontal: 16),
-                            foregroundColor: Colors.white,
-                            backgroundColor: Colors.green,
-                          ),
-                        ),
                         SizedBox(height: 40.0),
                         TextButton.icon(
                           onPressed: reqAccess,
@@ -193,25 +143,8 @@ class _HomePageState extends State<HomePage> {
                         TextButton.icon(
                           onPressed: () {
                             startBubble(
-                              bubbleOptionas: BubbleOptions(
-                                bubbleIcon: 'test',
-                                bubbleSize: 60,
-                                enableClose: true,
-                                distanceToClose: 90,
-                                enableAnimateToEdge: true,
-                                enableBottomShadow: true,
-                                keepAliveWhenAppExit: false,
-                              ),
-                              onTap: () async {
-                                if (await FlutterOverlayWindow.isActive()) {
-                                  await FlutterOverlayWindow.closeOverlay();
-                                  await FlutterOverlayWindow.updateFlag(
-                                    isClickThrough
-                                        ? OverlayFlag.defaultFlag
-                                        : OverlayFlag.clickThrough,
-                                  );
-                                }
-                              },
+                              bubbleOptionas: bubbleOptions(),
+                              onTap: ontap,
                             );
                           },
                           icon: const Icon(Icons.open_in_new,
@@ -267,10 +200,17 @@ class _HomePageState extends State<HomePage> {
     required BubbleOptions bubbleOptionas,
     VoidCallback? onTap,
   }) async {
-    final hasStarted = await DashBubble.instance.startBubble(
+    bool hasStarted = false;
+    hasStarted = await DashBubble.instance.startBubble(
       bubbleOptions: bubbleOptionas,
       onTap: onTap,
     );
+    while (!hasStarted) {
+      hasStarted = await DashBubble.instance.startBubble(
+        bubbleOptions: bubbleOptionas,
+        onTap: onTap,
+      );
+    }
     if (hasStarted) {
       print('Started');
     } else {
@@ -287,5 +227,70 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-  void ontap() {}
+  void ontap() async {
+    if (await FlutterOverlayWindow.isActive()) {
+      DashBubble.instance.isRunning();
+      await FlutterOverlayWindow.closeOverlay();
+      if (isClickThrough) {
+        await FlutterOverlayWindow.showOverlay(
+          enableDrag: false,
+          overlayTitle: "X-SLAYER",
+          overlayContent: 'Overlay Enabled',
+          flag: OverlayFlag.defaultFlag,
+          visibility: NotificationVisibility.visibilityPublic,
+          positionGravity: PositionGravity.auto,
+          height: WindowSize.matchParent,
+          width: WindowSize.matchParent,
+          startPosition: const OverlayPosition(0, 0),
+        );
+      } else {
+        await FlutterOverlayWindow.showOverlay(
+          enableDrag: false,
+          overlayTitle: "X-SLAYER",
+          overlayContent: 'Overlay Enabled',
+          flag: OverlayFlag.clickThrough,
+          visibility: NotificationVisibility.visibilityPublic,
+          positionGravity: PositionGravity.auto,
+          height: WindowSize.matchParent,
+          width: WindowSize.matchParent,
+          startPosition: const OverlayPosition(0, 0),
+        );
+      }
+      await stopBubble();
+      await startBubble(
+        bubbleOptionas: bubbleOptions(),
+        onTap: ontap,
+      );
+      isClickThrough = !isClickThrough;
+    } else {
+      await FlutterOverlayWindow.showOverlay(
+        enableDrag: false,
+        overlayTitle: "X-SLAYER",
+        overlayContent: 'Overlay Enabled',
+        flag: OverlayFlag.defaultFlag,
+        visibility: NotificationVisibility.visibilityPublic,
+        positionGravity: PositionGravity.auto,
+        height: WindowSize.matchParent,
+        width: WindowSize.matchParent,
+        startPosition: const OverlayPosition(0, 0),
+      );
+      await stopBubble();
+      await startBubble(
+        bubbleOptionas: bubbleOptions(),
+        onTap: ontap,
+      );
+    }
+  }
+
+  BubbleOptions bubbleOptions() {
+    return BubbleOptions(
+      bubbleIcon: 'test',
+      bubbleSize: 50,
+      distanceToClose: 90,
+      enableClose: false,
+      enableAnimateToEdge: true,
+      enableBottomShadow: true,
+      keepAliveWhenAppExit: false,
+    );
+  }
 }
