@@ -1,6 +1,7 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_overlay_window/flutter_overlay_window.dart';
+import 'package:dash_bubble/dash_bubble.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({
@@ -12,15 +13,15 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-
-
+  bool isClickThrough = false;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Row(
           children: [
-            Icon(Icons.sports_soccer, color: Colors.white), // أيقونة بجانب العنوان
+            Icon(Icons.sports_soccer,
+                color: Colors.white), // أيقونة بجانب العنوان
             SizedBox(width: 10),
             Text(
               'Ball 8 App',
@@ -126,14 +127,15 @@ class _HomePageState extends State<HomePage> {
                         TextButton.icon(
                           onPressed: () async {
                             if (await FlutterOverlayWindow.isActive()) return;
-                         //  await launchOverlay("ball_game");
+                            //  await launchOverlay("ball_game");
 
                             await FlutterOverlayWindow.showOverlay(
                               enableDrag: false,
                               overlayTitle: "X-SLAYER",
                               overlayContent: 'Overlay Enabled',
                               flag: OverlayFlag.defaultFlag,
-                              visibility: NotificationVisibility.visibilityPublic,
+                              visibility:
+                                  NotificationVisibility.visibilityPublic,
                               positionGravity: PositionGravity.auto,
                               height: WindowSize.matchParent,
                               width: WindowSize.matchParent,
@@ -155,14 +157,82 @@ class _HomePageState extends State<HomePage> {
                         ),
                         TextButton.icon(
                           onPressed: () async {
-                            if (await FlutterOverlayWindow.isActive()) return;
-                         //   await launchOverlay("new_overlay");
-
+                            if (await FlutterOverlayWindow.isActive()) {
+                              FlutterOverlayWindow.;
+                            }
                           },
                           icon: const Icon(Icons.open_in_new,
                               color: Colors.white),
                           label: const Text(
-                            "Show Overlay",
+                            "UY",
+                            style: TextStyle(fontSize: 16),
+                          ),
+                          style: TextButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(
+                                vertical: 12, horizontal: 16),
+                            foregroundColor: Colors.white,
+                            backgroundColor: Colors.green,
+                          ),
+                        ),
+                        SizedBox(height: 40.0),
+                        TextButton.icon(
+                          onPressed: reqAccess,
+                          icon: const Icon(Icons.open_in_new,
+                              color: Colors.white),
+                          label: const Text(
+                            "Req Access",
+                            style: TextStyle(fontSize: 16),
+                          ),
+                          style: TextButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(
+                                vertical: 12, horizontal: 16),
+                            foregroundColor: Colors.white,
+                            backgroundColor: Colors.green,
+                          ),
+                        ),
+                        TextButton.icon(
+                          onPressed: () {
+                            startBubble(
+                              bubbleOptionas: BubbleOptions(
+                                bubbleIcon: 'test',
+                                bubbleSize: 60,
+                                enableClose: true,
+                                distanceToClose: 90,
+                                enableAnimateToEdge: true,
+                                enableBottomShadow: true,
+                                keepAliveWhenAppExit: false,
+                              ),
+                              onTap: () async {
+                                if (await FlutterOverlayWindow.isActive()) {
+                                  await FlutterOverlayWindow.closeOverlay();
+                                  await FlutterOverlayWindow.updateFlag(
+                                    isClickThrough
+                                        ? OverlayFlag.defaultFlag
+                                        : OverlayFlag.clickThrough,
+                                  );
+                                }
+                              },
+                            );
+                          },
+                          icon: const Icon(Icons.open_in_new,
+                              color: Colors.white),
+                          label: const Text(
+                            "Show Bubble",
+                            style: TextStyle(fontSize: 16),
+                          ),
+                          style: TextButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(
+                                vertical: 12, horizontal: 16),
+                            foregroundColor: Colors.white,
+                            backgroundColor: Colors.green,
+                          ),
+                        ),
+                        TextButton.icon(
+                          onPressed: stopBubble,
+                          icon: const Icon(Icons.open_in_new,
+                              color: Colors.white),
+                          label: const Text(
+                            "Stop Bubble",
                             style: TextStyle(fontSize: 16),
                           ),
                           style: TextButton.styleFrom(
@@ -183,4 +253,39 @@ class _HomePageState extends State<HomePage> {
       ),
     );
   }
+
+  Future<void> reqAccess() async {
+    final isGranted = await DashBubble.instance.requestOverlayPermission();
+    if (isGranted) {
+      print('Granted');
+    } else {
+      print('Denied');
+    }
+  }
+
+  Future<void> startBubble({
+    required BubbleOptions bubbleOptionas,
+    VoidCallback? onTap,
+  }) async {
+    final hasStarted = await DashBubble.instance.startBubble(
+      bubbleOptions: bubbleOptionas,
+      onTap: onTap,
+    );
+    if (hasStarted) {
+      print('Started');
+    } else {
+      print('Failed to start');
+    }
+  }
+
+  Future<void> stopBubble() async {
+    final hasStopped = await DashBubble.instance.stopBubble();
+    if (hasStopped) {
+      print('Stopped');
+    } else {
+      print('Failed to stop');
+    }
+  }
+
+  void ontap() {}
 }
