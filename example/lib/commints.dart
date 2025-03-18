@@ -1,3 +1,98 @@
+
+//ثلاثه جوانب بشكل صحيح
+// if (tMin == tX) {
+//   // اصطدام بالحواف الرأسية (يمين أو يسار)
+//   double newAngle = pi - currentAngle;
+//
+//   // التأكد من أن التعديل يجعل الزاوية دائمًا منفرجة وليس حادة
+//   if ((sin(currentAngle) > 0 && current.dx > size.width / 2) ||  // اصطدام باليمين
+//       (sin(currentAngle) < 0 && current.dx < size.width / 2)) { // اصطدام باليسار
+//     newAngle += reflectionAngleAdjustment;
+//   } else {
+//     newAngle -= reflectionAngleAdjustment;
+//   }
+//
+//   currentAngle = newAngle;
+// } else {
+//   // اصطدام بالحواف الأفقية (أعلى أو أسفل)
+//   double newAngle = -currentAngle;
+//
+//   // التأكد من أن التعديل يجعل الزاوية دائمًا منفرجة وليس حادة
+//   if ((cos(currentAngle) > 0 && current.dy > size.height / 2) ||  // اصطدام بالأسفل
+//       (cos(currentAngle) < 0 && current.dy < size.height / 2)) { // اصطدام بالأعلى
+//     newAngle += reflectionAngleAdjustment;
+//   } else {
+//     newAngle -= reflectionAngleAdjustment;
+//   }
+//
+//   currentAngle = newAngle;
+// }
+
+
+
+//الطرف الاسفل و الايمن يعملا بشكل جيد اما الاعلي و الايسر بايظين
+// if (tMin == tX) {
+//   // اصطدام بالحواف الرأسية (يمين أو يسار)
+//   double newAngle = pi - currentAngle;
+//
+//   // ضبط زاوية الانعكاس بناءً على الاتجاه السابق للحركة
+//   double adjustedAngle = newAngle + reflectionAngleAdjustment * (sin(currentAngle) >= 0 ? 1 : -1);
+//
+//   currentAngle = adjustedAngle;
+// } else {
+//   // اصطدام بالحواف الأفقية (أعلى أو أسفل)
+//   double newAngle = -currentAngle;
+//
+//   // ضبط زاوية الانعكاس بناءً على الاتجاه السابق للحركة
+//   double adjustedAngle = newAngle + reflectionAngleAdjustment * (cos(currentAngle) >= 0 ? 1 : -1);
+//
+//   currentAngle = adjustedAngle;
+// }
+
+
+
+// if (tMin == tX) {
+//   // اصطدام بالحواف الرأسية (يمين أو يسار)
+//   double newAngle = pi - currentAngle;
+//
+//   // ضبط زاوية الانعكاس بحيث لا تصبح حادة عند الجهة الأخرى
+//   double adjustedAngle = newAngle + reflectionAngleAdjustment * (newAngle > 0 ? 1 : -1);
+//
+//   currentAngle = adjustedAngle;
+// } else {
+//   // اصطدام بالحواف الأفقية (أعلى أو أسفل)
+//   double newAngle = -currentAngle;
+//
+//   // ضبط زاوية الانعكاس بنفس منطق الحواف الرأسية
+//   double adjustedAngle = newAngle + reflectionAngleAdjustment * (newAngle > 0 ? 1 : -1);
+//
+//   currentAngle = adjustedAngle;
+// }
+
+
+
+//  if (tMin == tX) {
+//
+//    currentAngle = pi - currentAngle + reflectionAngleAdjustment;
+//  } else {
+//
+//    currentAngle = -currentAngle + reflectionAngleAdjustment;
+//  }
+// // تحديث المسار وإجمالي الطول
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 // class BallPainter extends CustomPainter {
 //   final Offset whiteBallPosition;
 //   final Offset redBallPosition;

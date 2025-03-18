@@ -934,7 +934,7 @@ class _BallGameState extends State<BallGameApp> {
                         tableWidth += details.delta.dx;
                         tableHeight += details.delta.dy;
                         tableWidth =
-                            tableWidth.clamp(ballRadius + 30, double.infinity);
+                            tableWidth.clamp(ballRadius + 30, double.i);
                         tableHeight =
                             tableHeight.clamp(ballRadius + 30, 600);
                       });
