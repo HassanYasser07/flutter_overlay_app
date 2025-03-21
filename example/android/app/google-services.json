@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1023715367397",
+    "project_id": "ballapp-25302",
+    "storage_bucket": "ballapp-25302.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1023715367397:android:1be1fda34172e5e83ab70c",
+        "android_client_info": {
+          "package_name": "com.example.flutter_overlay_window_example"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC-uUPvJecPtM7U-bjJ71wURQGKCL5Zq-U"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -444,6 +444,7 @@
 
 import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_overlay_window/flutter_overlay_window.dart';
 import 'package:flutter_overlay_window_example/widgets/control_button.dart';
 
@@ -486,8 +487,41 @@ class _BallGameState extends State<BallGameApp> {
   Offset cueStart = const Offset(100, 100);
   double cueLength = 100;
   bool isFirstResize = true;
+//DateTime? expirationDate;
 
+  @override
+  void initState() {
+    updateBallPositionsAfterResize();
+    super.initState();
+   //   checkAppExpiration();
 
+  }
+
+// Future<void> checkAppExpiration() async {
+//   // Set your expiration date here (year, month, day, hour, minute)
+//   expirationDate = DateTime(2025, 3, 18, 5, 37); // Change this to your desired date
+//
+//   if (DateTime.now().isAfter(expirationDate!)) {
+//     showDialog(
+//       context: context,
+//       barrierDismissible: false,
+//       builder: (BuildContext context) {
+//         return AlertDialog(
+//           title: Text('تنبيه'),
+//           content: Text('انتهت صلاحية التطبيق'),
+//           actions: <Widget>[
+//             TextButton(
+//               child: Text('إغلاق'),
+//               onPressed: () {
+//                 SystemNavigator.pop(); // This will close the app
+//               },
+//             ),
+//           ],
+//         );
+//       },
+//     );
+//   }
+// }
 
   void _resizeOverlayWindow() async {
     try {
@@ -509,6 +543,32 @@ class _BallGameState extends State<BallGameApp> {
     }
   }
 
+Future<void> updateOverlaySize(int newWidth, int newHeight) async {
+  if (!mounted) return;
+  
+  // Add minimum size constraints
+  if (newWidth < 150) newWidth = 150;
+  if (newHeight < 200) newHeight = 200;
+  
+  try {
+    bool? success = await FlutterOverlayWindow.resizeOverlay(
+      newWidth,
+      newHeight,
+      true, // Enable dragging within window
+    );
+
+    if (success == true && mounted) {
+      setState(() {
+        tableWidth = newWidth.toDouble();
+        tableHeight = newHeight.toDouble();
+        updateBallPositionsAfterResize();
+      });
+    }
+  } catch (e) {
+    print('Error resizing overlay: $e');
+  }
+}
+
   //
   // void _resizeOverlayWindow() async {
   //   await FlutterOverlayWindow.resizeOverlay(
@@ -518,18 +578,29 @@ class _BallGameState extends State<BallGameApp> {
   //   );
   // }
 
-// void updateOverlaySize(int newWidth, int newHeight) async {
-//   bool? success = await FlutterOverlayWindow.resizeOverlay(
-//     newWidth,
-//     newHeight,
-//     false, // تمكين السحب داخل النافذة
-//   );
-//
-//   if (success == true) {
-//     setState(() {
-//       tableWidth = newWidth.toDouble();
-//       tableHeight = newHeight.toDouble();
-//     });
+// Future<void> updateOverlaySize(int newWidth, int newHeight) async {
+//   if (!mounted) return;
+  
+//   // Add minimum size constraints
+//   if (newWidth < 150) newWidth = 150;
+//   if (newHeight < 200) newHeight = 200;
+  
+//   try {
+//     bool? success = await FlutterOverlayWindow.resizeOverlay(
+//       newWidth,
+//       newHeight,
+//       true, // Enable dragging within window
+//     );
+
+//     if (success == true && mounted) {
+//       setState(() {
+//         tableWidth = newWidth.toDouble();
+//         tableHeight = newHeight.toDouble();
+//         updateBallPositionsAfterResize();
+//       });
+//     }
+//   } catch (e) {
+//     print('Error resizing overlay: $e');
 //   }
 // }
 
@@ -591,19 +662,7 @@ class _BallGameState extends State<BallGameApp> {
   }
 
 
-  // void _startCueRotation(DragStartDetails details) {
-  //   double distanceFromWhiteBall =
-  //       (details.localPosition - yellowBallPosition).distance;
-  //
-  //   if (distanceFromWhiteBall > ballRadius &&
-  //       distanceFromWhiteBall <= ballRadius + 50) {
-  //     setState(() {
-  //       isCueRotating = true; // ✅ تفعيل تحريك العصا فقط إذا كان المستخدم لمس حول الكرة
-  //       initialCueTouchPosition = details.localPosition;
-  //       initialCueAngle = cueAngle;
-  //     });
-  //   }
-  // }
+
 
   void _updateCueRotation(DragUpdateDetails details) {
     if (!isCueRotating) return; // ✅ عدم تحديث الزاوية إذا لم يكن المستخدم يدور العصا
@@ -727,11 +786,7 @@ class _BallGameState extends State<BallGameApp> {
 
   double topOffset = 100;
   double leftOffset = 100;
-  @override
-  void initState() {
-    updateBallPositionsAfterResize();
-    super.initState();
-  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -741,7 +796,7 @@ class _BallGameState extends State<BallGameApp> {
           left: leftOffset,
           top: topOffset,
           child: Container(
-            color: Colors.blue.withValues(alpha: 0.05),
+            color: Colors.white.withValues(alpha: .03),
             child: Stack(
               children: [
                 FittedBox(
@@ -934,12 +989,12 @@ class _BallGameState extends State<BallGameApp> {
                         tableWidth += details.delta.dx;
                         tableHeight += details.delta.dy;
                         tableWidth =
-                            tableWidth.clamp(ballRadius + 30, double.i);
+                            tableWidth.clamp(ballRadius + 30, double.infinity);
                         tableHeight =
                             tableHeight.clamp(ballRadius + 30, 600);
                       });
                       updateBallPositionsAfterResize();
-                   //   _resizeOverlayWindow(); // تحديث حجم النافذة العائمة
+                   //   updateOverlaySize(tableWidth.toInt(), tableHeight.toInt()); // تحديث حجم النافذة العائمة
 
 
                     },
@@ -974,7 +1029,7 @@ class _BallGameState extends State<BallGameApp> {
 
                       });
                       updateBallPositionsAfterResize();
-                    //  _resizeOverlayWindow(); // تحديث حجم النافذة العائمة
+                    //  updateOverlaySize(tableWidth.toInt(), tableHeight.toInt()); // تحديث حجم النافذة العائمة
 
                     },
                     child: Container(

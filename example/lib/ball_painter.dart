@@ -33,6 +33,19 @@ class BallPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
+
+      // Paint borderPaint = Paint()
+      //   ..color = Colors.black
+      //   ..style = PaintingStyle.stroke
+      //   ..strokeWidth = 1; // زيادة سماكة الإطار
+      //
+      // // رسم المربع (الإطار الخارجي فقط)
+      // canvas.drawRect(
+      //   Rect.fromLTWH(0, 0, size.width , size.height ), // تقليل الحجم لتعويض سماكة الحدود
+      //   borderPaint,
+      // );
+
+
     Paint gridPaint = Paint()
       ..color = Colors.black
       ..style = PaintingStyle.stroke;

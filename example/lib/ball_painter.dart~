@@ -33,16 +33,29 @@ class BallPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    Paint gridPaint = Paint()
-      ..color = Colors.black
-      ..style = PaintingStyle.stroke;
 
-    for (double y = 0; y <= size.height; y += 50) {
-      canvas.drawLine(Offset(0, y), Offset(size.width, y), gridPaint);
-    }
-    for (double x = 0; x <= size.width; x += 50) {
-      canvas.drawLine(Offset(x, 0), Offset(x, size.height), gridPaint);
-    }
+      Paint borderPaint = Paint()
+        ..color = Colors.black
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 1; // زيادة سماكة الإطار
+
+      // رسم المربع (الإطار الخارجي فقط)
+      canvas.drawRect(
+        Rect.fromLTWH(0, 0, size.width , size.height ), // تقليل الحجم لتعويض سماكة الحدود
+        borderPaint,
+      );
+
+
+    // Paint gridPaint = Paint()
+    //   ..color = Colors.black
+    //   ..style = PaintingStyle.stroke;
+    //
+    // for (double y = 0; y <= size.height; y += 50) {
+    //   canvas.drawLine(Offset(0, y), Offset(size.width, y), gridPaint);
+    // }
+    // for (double x = 0; x <= size.width; x += 50) {
+    //   canvas.drawLine(Offset(x, 0), Offset(x, size.height), gridPaint);
+    // }
     Paint whiteBallPaint = Paint()
       ..color = Colors.yellowAccent
       ..style = PaintingStyle.stroke
@@ -115,30 +128,34 @@ class BallPainter extends CustomPainter {
     }
   }
 
-
   double _calculateReflectedAngle(
       double incomingAngle, Offset whiteBall, Offset redBall) {
     double impactAngle =
-    atan2(whiteBall.dy - redBall.dy, whiteBall.dx - redBall.dx);
-    double reflectedAngle = 2 * impactAngle - incomingAngle;
-    return reflectedAngle ;
+        atan2(whiteBall.dy - redBall.dy, whiteBall.dx - redBall.dx);
+    // Calculate the normal vector at the point of impact
+    double normalAngle = impactAngle;
+    // Calculate the reflection angle based on the normal
+    double reflectedAngle = 2 * normalAngle - incomingAngle;
+    
+    // Apply adjustment based on the quadrant of impact
+    double adjustmentSign = sin(normalAngle - incomingAngle) > 0 ? 1 : -1;
+    return reflectedAngle + (reflectionAngleAdjustment * adjustmentSign);
   }
-
-
-
-
 
   double _calculateWhiteBallPostCollisionAngle(
       double incomingAngle, Offset whiteBall, Offset redBall) {
     double impactAngle =
-    atan2(redBall.dy - whiteBall.dy, redBall.dx - whiteBall.dx);
-    double outgoingAngle = 2 * impactAngle - incomingAngle + pi;
-    return outgoingAngle;
+        atan2(redBall.dy - whiteBall.dy, redBall.dx - whiteBall.dx);
+    // Calculate the normal vector at the point of impact
+    double normalAngle = impactAngle;
+    // Calculate the outgoing angle based on the normal
+    double outgoingAngle = 2 * normalAngle - incomingAngle + pi;
+    
+    // Apply adjustment based on the quadrant of impact
+    double adjustmentSign = sin(normalAngle - incomingAngle) > 0 ? -1 : 1;
+    return outgoingAngle + (reflectionAngleAdjustment * adjustmentSign);
   }
 
-
-
-//انعكاس صح بس الحواف بايظه
   List<Offset> _calculateReflectionPath(
       Offset start, double angle, Size size, double maxLength) {
     List<Offset> path = [start];
@@ -170,231 +187,31 @@ class BallPainter extends CustomPainter {
         current.dy + (end.dy - current.dy) * tMin,
       );
 
-      //
-      // if (tMin == tX) {
-      //   // اصطدام بالحواف الرأسية (يمين أو يسار)
-      //   double newAngle = pi - currentAngle;
-      //
-      //   if ((end.dx >= size.width - 1) || (end.dx <= 1)) {
-      //     newAngle = pi - currentAngle; // عكس الزاوية فقط عند الاصطدام
-      //   }
-      //
-      //   newAngle += reflectionAngleAdjustment * (sin(currentAngle) > 0 ? 1 : -1);
-      //   currentAngle = (newAngle + 2 * pi) % (2 * pi); // تأكد من بقاء الزاوية ضمن 0 - 2π
-      // } else {
-      //   // اصطدام بالحواف الأفقية (أعلى أو أسفل)
-      //   double newAngle = -currentAngle;
-      //
-      //   if ((end.dy >= size.height - 1) || (end.dy <= 1)) {
-      //     newAngle = -currentAngle; // عكس الزاوية فقط عند الاصطدام
-      //   }
-      //
-      //   newAngle += reflectionAngleAdjustment * (cos(currentAngle) > 0 ? 1 : -1);
-      //   currentAngle = (newAngle + 2 * pi) % (2 * pi); // تأكد من بقاء الزاوية ضمن 0 - 2π
-      // }
-      //
-
-
-      // if (tMin == tX) {
-      //   // اصطدام بالحواف الرأسية (يمين أو يسار)
-      //   double newAngle = pi - currentAngle;
-      //
-      //   // تحديد ما إذا كان الاصطدام على الجانب الأيسر أو الأيمن
-      //   bool isLeftSide = current.dx < size.width / 2;
-      //   bool isRightSide = current.dx > size.width / 2;
-      //   bool isTopHalf = current.dy < size.height / 2; // تحديد إذا كان في النصف العلوي
-      //   bool isBottomHalf = current.dy > size.height / 2; // تحديد إذا كان في النصف السفلي
-      //
-      //   if (isLeftSide) {
-      //     // إذا كان في الجانب الأيسر
-      //     if (isTopHalf) {
-      //       newAngle += reflectionAngleAdjustment; // الجزء العلوي من اليسار
-      //     } else if (isBottomHalf) {
-      //       newAngle -= reflectionAngleAdjustment; // الجزء السفلي من اليسار
-      //     }
-      //   } else if (isRightSide) {
-      //     // إذا كان في الجانب الأيمن
-      //     if (isTopHalf) {
-      //       newAngle -= reflectionAngleAdjustment; // الجزء العلوي من اليمين
-      //     } else if (isBottomHalf) {
-      //       newAngle += reflectionAngleAdjustment; // الجزء السفلي من اليمين
-      //     }
-      //   }
-      //
-      //   currentAngle = (newAngle + 2 * pi) % (2 * pi); // ✨ تصحيح الزاوية
-      // } else {
-      //   // اصطدام بالحواف الأفقية (أعلى أو أسفل)
-      //   double newAngle = -currentAngle;
-      //
-      //   bool isTopSide = current.dy < size.height / 2;
-      //   bool isBottomSide = current.dy > size.height / 2;
-      //   bool isLeftHalf = current.dx < size.width / 2; // تحديد إذا كان في النصف الأيسر
-      //   bool isRightHalf = current.dx > size.width / 2; // تحديد إذا كان في النصف الأيمن
-      //
-      //   if (isTopSide) {
-      //     // إذا كان في الجانب العلوي
-      //     if (isLeftHalf) {
-      //       newAngle = -newAngle - reflectionAngleAdjustment; // الجزء العلوي من اليسار
-      //     } else if (isRightHalf) {
-      //       newAngle = -newAngle + reflectionAngleAdjustment; // الجزء العلوي من اليمين
-      //     }
-      //   } else if (isBottomSide) {
-      //     // إذا كان في الجانب السفلي
-      //     if (isLeftHalf) {
-      //       newAngle += reflectionAngleAdjustment; // الجزء السفلي من اليسار
-      //     } else if (isRightHalf) {
-      //       newAngle -= reflectionAngleAdjustment; // الجزء السفلي من اليمين
-      //     }
-      //   }
-      //
-      //   currentAngle = (newAngle + 2 * pi) % (2 * pi); // ✨ تصحيح الزاوية
-      // }
-
-      // if (tMin == tX) {
-      //   // اصطدام بالحواف الرأسية (يمين أو يسار)
-      //   double newAngle = pi - currentAngle;
-      //
-      //   bool isLeftSide = current.dx < size.width / 2;
-      //   bool isRightSide = current.dx > size.width / 2;
-      //
-      //   // تحديد خط الفصل الديناميكي بناءً على إحداثيات X الخاصة بالكرة
-      //   double dynamicHeightDivider = size.height * (current.dx / size.width);
-      //
-      //   bool isTopHalf = current.dy < dynamicHeightDivider;
-      //   bool isBottomHalf = current.dy > dynamicHeightDivider;
-      //
-      //   if (isLeftSide) {
-      //     if (isTopHalf) {
-      //       newAngle = -newAngle; // انعكاس مفاجئ في الاتجاه
-      //     } else {
-      //       newAngle += reflectionAngleAdjustment;
-      //     }
-      //   } else if (isRightSide) {
-      //     if (isTopHalf) {
-      //       newAngle -= reflectionAngleAdjustment;
-      //     } else {
-      //       newAngle = -newAngle; // انعكاس مفاجئ في الاتجاه
-      //     }
-      //   }
-      //
-      //   currentAngle = (newAngle + 2 * pi) % (2 * pi); // ✨ تصحيح الزاوية
-      // } else {
-      //   // اصطدام بالحواف الأفقية (أعلى أو أسفل)
-      //   double newAngle = -currentAngle;
-      //
-      //   bool isTopSide = current.dy < size.height / 2;
-      //   bool isBottomSide = current.dy > size.height / 2;
-      //
-      //   // تحديد خط الفصل الديناميكي بناءً على إحداثيات Y الخاصة بالكرة
-      //   double dynamicWidthDivider = size.width * (current.dy / size.height);
-      //
-      //   bool isLeftHalf = current.dx < dynamicWidthDivider;
-      //   bool isRightHalf = current.dx > dynamicWidthDivider;
-      //
-      //   if (isTopSide) {
-      //     if (isLeftHalf) {
-      //       newAngle = -newAngle; // انعكاس مفاجئ للزاوية
-      //     } else {
-      //       newAngle += reflectionAngleAdjustment;
-      //     }
-      //   } else if (isBottomSide) {
-      //     if (isLeftHalf) {
-      //       newAngle -= reflectionAngleAdjustment;
-      //     } else {
-      //       newAngle = -newAngle; // انعكاس مفاجئ للزاوية
-      //     }
-      //   }
-      //
-      //   currentAngle = (newAngle + 2 * pi) % (2 * pi); // ✨ تصحيح الزاوية
-      // }
-
-
       if (tMin == tX) {
         // اصطدام بالحواف الرأسية (يمين أو يسار)
         double newAngle = pi - currentAngle;
-
-        // تحديد موقع الاصطدام بناءً على موقع الكرة البيضاء
-        bool isRightSide = current.dx > whiteBallPosition.dx;
-        bool isLeftSide = !isRightSide;
-
-        // إذا عبر الشعاع الحد الفاصل، نعكس الزاوية فجأة
-        if ((isRightSide && newAngle > 0) || (isLeftSide && newAngle < 0)) {
-          newAngle = -newAngle;
-        }
-
-        // تطبيق تعديل الزاوية
-        if (isRightSide) {
-          newAngle += reflectionAngleAdjustment;
+        bool isRightCollision = end.dx >= size.width - 1;
+        
+        if (isRightCollision) {
+          newAngle += reflectionAngleAdjustment * (sin(currentAngle) > 0 ? 1 : -1);
         } else {
-          newAngle -= reflectionAngleAdjustment;
+          newAngle += reflectionAngleAdjustment * (sin(currentAngle) < 0 ? 1 : -1);
         }
-
+        
         currentAngle = (newAngle + 2 * pi) % (2 * pi);
       } else {
         // اصطدام بالحواف الأفقية (أعلى أو أسفل)
-        double newAngle = -currentAngle;
-
-        // تحديد موقع الاصطدام بناءً على موقع الكرة البيضاء
-        bool isBottomSide = current.dy > whiteBallPosition.dy;
-        bool isTopSide = !isBottomSide;
-
-        // إذا عبر الشعاع الحد الفاصل، نعكس الزاوية فجأة
-        if ((isBottomSide && newAngle > 0) || (isTopSide && newAngle < 0)) {
-          newAngle = -newAngle;
-        }
-
-        // تطبيق تعديل الزاوية
-        if (isBottomSide) {
-          newAngle += reflectionAngleAdjustment;
+        double newAngle =  - currentAngle;
+        bool isBottomCollision = end.dy >= size.height - 1;
+        
+        if (isBottomCollision) {
+          newAngle += reflectionAngleAdjustment * (cos(currentAngle) > 0 ? -1 : 1);
         } else {
-          newAngle -= reflectionAngleAdjustment;
+          newAngle += reflectionAngleAdjustment * (cos(currentAngle) < 0 ? -1 : 1);
         }
-
-        currentAngle = (newAngle + 2 * pi)(2*pi);
-    }
-
-//
-// //ثلاثه جوانب بشكل صحيح
-// if (tMin == tX) {
-//   // اصطدام بالحواف الرأسية (يمين أو يسار)
-//   double newAngle = pi - currentAngle;
-//   // التأكد من أن التعديل يجعل الزاوية دائمًا منفرجة وليس حادة
-//   if ((sin(currentAngle) > 0 && current.dx > size.width / 2) ||  // اصطدام باليمين
-//       (sin(currentAngle) < 0 && current.dx < size.width / 2)) { // اصطدام باليسار
-//     newAngle += reflectionAngleAdjustment;
-//   } else {
-//     newAngle -= reflectionAngleAdjustment;
-//   }
-//
-//  // currentAngle = newAngle;
-//   currentAngle = (newAngle + 2 * pi) % (2 * pi); // ✨ تصحيح الزاوية
-// } else {
-//   // اصطدام بالحواف الأفقية (أعلى أو أسفل)
-//   double newAngle = -currentAngle;
-//
-//   // التأكد من أن التعديل يجعل الزاوية دائمًا منفرجة وليس حادة
-//   if ((cos(currentAngle) > 0 && current.dy > size.height / 2) ||  // اصطدام بالأسفل
-//       (cos(currentAngle) < 0 && current.dy < size.height / 2)) { // اصطدام بالأعلى
-//     newAngle += reflectionAngleAdjustment;
-//   } else {
-//     newAngle -= reflectionAngleAdjustment;
-//   }
-//
-//  // currentAngle = newAngle;
-//   currentAngle = (newAngle + 2 * pi) % (2 * pi); // ✨ تصحيح الزاوية
-// }
-
-
-     //  if (tMin == tX) {
-     //
-     //    currentAngle = pi - currentAngle + reflectionAngleAdjustment;
-     //  } else {
-     //
-     //    currentAngle = -currentAngle + reflectionAngleAdjustment;
-     //  }
-     // // تحديث المسار وإجمالي الطول
-
-
+        
+        currentAngle = (newAngle + 2 * pi) % (2 * pi);
+      }
 
       double segmentLength = (end - current).distance;
       if (currentLength + segmentLength > maxLength) {
@@ -434,6 +251,3 @@ class BallPainter extends CustomPainter {
     return true;
   }
 }
-
-
-
